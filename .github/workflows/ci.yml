@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Rust
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: cargo build --locked
+      - name: Run commitlint
+        run: npx --no-install commitlint --from=HEAD~1
