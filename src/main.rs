@@ -11,7 +11,7 @@ enum SequencerCommands {
 }
 
 #[derive(Subcommand)]
-enum UserCommands {
+enum WalletCommands {
     /// Create a new account in the rollup by communicating with the contract
     Enter,
 
@@ -31,9 +31,9 @@ enum Commands {
     },
 
     /// Commands for managing a user account
-    User {
+    Wallet {
         #[command(subcommand)]
-        command: UserCommands,
+        command: WalletCommands,
     },
 }
 
@@ -59,17 +59,17 @@ fn main() {
                 }
             }
         }
-        Commands::User { command } => {
+        Commands::Wallet { command } => {
             match command {
-                UserCommands::Enter => {
+                WalletCommands::Enter => {
                     // TODO: Implement
                     println!("ENTER")
                 }
-                UserCommands::Exit => {
+                WalletCommands::Exit => {
                     // TODO: Implement
                     println!("EXIT")
                 }
-                UserCommands::Transfer { amount, to } => {
+                WalletCommands::Transfer { amount, to } => {
                     // TODO: Implement
                     println!("Transferring {amount} to {to}.")
                 }
