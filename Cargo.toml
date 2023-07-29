@@ -6,5 +6,8 @@ description = "An experimental ZK-rollup using ZoKrates circuits."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+strip = true
+
 [dependencies]
 clap = { version = "^4.3.12", features = ["derive"] }
