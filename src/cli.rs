@@ -1,6 +1,26 @@
 use clap::Parser;
 use clap::Subcommand;
 
+use crate::node::Node;
+use crate::node::NodeError;
+
+#[derive(Debug)]
+pub enum CLIError {
+    Node(NodeError),
+}
+
+#[derive(Subcommand)]
+enum NodeCommands {
+    /// Print all transactions from all batches, chronologically
+    History,
+
+    /// Print all transactions from the mempool, in no particular order
+    Mempool,
+
+    /// Print current state of the rollup, including balances of all accounts
+    State,
+}
+
 #[derive(Subcommand)]
 enum SequencerCommands {
     /// Create a new block and push it on chain
@@ -24,6 +44,12 @@ enum WalletCommands {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Commands for managing the rollup node
+    Node {
+        #[command(subcommand)]
+        command: NodeCommands,
+    },
+
     /// Commands for managing state of the whole rollup
     Sequencer {
         #[command(subcommand)]
@@ -44,9 +70,20 @@ struct Cli {
     command: Commands,
 }
 
-pub fn run_cli() {
+pub fn run_cli() -> Result<(), CLIError> {
     let cli = Cli::parse();
     match &cli.command {
+        Commands::Node { command } => match command {
+            NodeCommands::History => {
+                println!("{:#?}", Node::start().map_err(CLIError::Node)?.history)
+            }
+            NodeCommands::Mempool => {
+                println!("{:#?}", Node::start().map_err(CLIError::Node)?.mempool)
+            }
+            NodeCommands::State => {
+                println!("{:#?}", Node::start().map_err(CLIError::Node)?.state)
+            }
+        },
         Commands::Sequencer { command } => {
             match command {
                 SequencerCommands::Push => {
@@ -76,4 +113,5 @@ pub fn run_cli() {
             }
         }
     };
+    Ok(())
 }
