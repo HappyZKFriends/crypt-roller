@@ -44,18 +44,18 @@ struct Cli {
     command: Commands,
 }
 
-fn main() {
+fn run_cli() {
     let cli = Cli::parse();
     match &cli.command {
         Commands::Sequencer { command } => {
             match command {
                 SequencerCommands::Push => {
                     // TODO: Implement
-                    println!("PUSH")
+                    println!("PUSH");
                 }
                 SequencerCommands::Pull => {
                     // TODO: Implement
-                    println!("PULL")
+                    println!("PULL");
                 }
             }
         }
@@ -63,17 +63,21 @@ fn main() {
             match command {
                 WalletCommands::Enter => {
                     // TODO: Implement
-                    println!("ENTER")
+                    println!("ENTER");
                 }
                 WalletCommands::Exit => {
                     // TODO: Implement
-                    println!("EXIT")
+                    println!("EXIT");
                 }
                 WalletCommands::Transfer { amount, to } => {
                     // TODO: Implement
-                    println!("Transferring {amount} to {to}.")
+                    println!("Transferring {amount} to {to}.");
                 }
             }
         }
-    }
+    };
+}
+
+fn main() {
+    run_cli();
 }
