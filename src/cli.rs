@@ -15,10 +15,10 @@ use crate::wallet::WalletError;
 #[derive(Error, Debug)]
 pub enum CLIError {
     #[error("Wallet error | {0}")]
-    Wallet(WalletError),
+    Wallet(#[from] WalletError),
 
     #[error("Node error | {0}")]
-    Node(NodeError),
+    Node(#[from] NodeError),
 }
 
 #[derive(Subcommand)]
@@ -94,35 +94,26 @@ pub fn run_cli() -> Result<(), CLIError> {
     match &cli.command {
         Commands::Node { command } => match command {
             NodeCommands::History => {
-                println!(
-                    "{:#?}",
-                    Node::start(storage_dir).map_err(CLIError::Node)?.history
-                )
+                println!("{:#?}", Node::start(storage_dir)?.history)
             }
             NodeCommands::Mempool => {
-                println!(
-                    "{:#?}",
-                    Node::start(storage_dir).map_err(CLIError::Node)?.mempool
-                )
+                println!("{:#?}", Node::start(storage_dir)?.mempool)
             }
             NodeCommands::State => {
-                println!(
-                    "{:#?}",
-                    Node::start(storage_dir).map_err(CLIError::Node)?.state
-                )
+                println!("{:#?}", Node::start(storage_dir)?.state)
             }
         },
         Commands::Sequencer { command } => {
             match command {
                 SequencerCommands::Push => {
-                    let mut node = Node::start(storage_dir).map_err(CLIError::Node)?;
+                    let mut node = Node::start(storage_dir)?;
                     let batch = build_transaction_batch(&node);
                     if batch.is_empty() {
                         println!("No transactions to publish found.")
                     } else {
                         node.history.publish_batch(batch);
                     }
-                    node.update_storage(storage_dir).map_err(CLIError::Node)?;
+                    node.update_storage(storage_dir)?;
                 }
                 SequencerCommands::Pull => {
                     // TODO: Implement
@@ -134,24 +125,21 @@ pub fn run_cli() -> Result<(), CLIError> {
             match command {
                 WalletCommands::Enter { amount } => {
                     let mut node = Node::start(storage_dir).map_err(CLIError::Node)?;
-                    let (_wallet, transaction) = Wallet::build_enter_transaction(*amount, &node)
-                        .map_err(CLIError::Wallet)?;
+                    let (_wallet, transaction) = Wallet::build_enter_transaction(*amount, &node)?;
                     node.mempool.publish_transaction(transaction);
-                    node.update_storage(storage_dir).map_err(CLIError::Node)?;
+                    node.update_storage(storage_dir)?;
                 }
                 WalletCommands::Exit => {
                     // TODO: Implement
                     println!("EXIT");
                 }
                 WalletCommands::Transfer { from, to, amount } => {
-                    let mut node = Node::start(storage_dir).map_err(CLIError::Node)?;
+                    let mut node = Node::start(storage_dir)?;
                     let wallet = Wallet { account: *from };
 
-                    let transaction = wallet
-                        .build_transfer_transaction(*to, *amount, &node)
-                        .map_err(CLIError::Wallet)?;
+                    let transaction = wallet.build_transfer_transaction(*to, *amount, &node)?;
                     node.mempool.publish_transaction(transaction);
-                    node.update_storage(storage_dir).map_err(CLIError::Node)?;
+                    node.update_storage(storage_dir)?;
                 }
             }
         }
