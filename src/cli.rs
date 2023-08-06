@@ -3,6 +3,7 @@ use clap::Subcommand;
 
 use crate::node::Node;
 use crate::node::NodeError;
+use crate::sequencer::build_transaction_batch;
 use crate::transaction::Address;
 use crate::transaction::Amount;
 use crate::wallet::Wallet;
@@ -97,8 +98,13 @@ pub fn run_cli() -> Result<(), CLIError> {
         Commands::Sequencer { command } => {
             match command {
                 SequencerCommands::Push => {
-                    // TODO: Implement
-                    println!("PUSH");
+                    let mut node = Node::start().map_err(CLIError::Node)?;
+                    let batch = build_transaction_batch(&node);
+                    if batch.is_empty() {
+                        println!("No transactions to publish found.")
+                    } else {
+                        node.history.publish_batch(batch);
+                    }
                 }
                 SequencerCommands::Pull => {
                     // TODO: Implement
