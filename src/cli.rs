@@ -2,6 +2,7 @@ use std::path::Path;
 
 use clap::Parser;
 use clap::Subcommand;
+use thiserror::Error;
 
 use crate::node::Node;
 use crate::node::NodeError;
@@ -11,9 +12,12 @@ use crate::transaction::Amount;
 use crate::wallet::Wallet;
 use crate::wallet::WalletError;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum CLIError {
+    #[error("Wallet error | {0}")]
     Wallet(WalletError),
+
+    #[error("Node error | {0}")]
     Node(NodeError),
 }
 

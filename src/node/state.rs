@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use thiserror::Error;
+
 use crate::transaction::Address;
 use crate::transaction::Amount;
 use crate::transaction::Enter;
@@ -7,26 +9,41 @@ use crate::transaction::Nonce;
 use crate::transaction::Transaction;
 use crate::transaction::Transfer;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum TransactionExecutionError {
-    SourceAccountMissing {
-        transfer: Transfer,
-    },
-    TargetAccountMissing {
-        transfer: Transfer,
-    },
+    #[error("Source account {} does not exist.", .transfer.from)]
+    SourceAccountMissing { transfer: Transfer },
+
+    #[error("Target account {} does not exist.", .transfer.from)]
+    TargetAccountMissing { transfer: Transfer },
+
+    #[error("Wrong nonce. Expected {}, got {}.", .account.next_nonce, .transfer.nonce)]
     WrongNonce {
         transfer: Transfer,
         account: AccountState,
     },
+
+    #[error(
+        "Insufficient balance. Attempted to transfer {} out of an account with balance {}.",
+        .amount,
+        .account.balance,
+    )]
     InsufficientBalance {
         account: AccountState,
         amount: Amount,
     },
+
+    #[error("Balance overflow. Transferring {} to an account with balance {} would bring it over the maximum of {}.",
+        .amount,
+        .account.balance,
+        Amount::MAX,
+    )]
     BalanceOverflow {
         account: AccountState,
         amount: Amount,
     },
+
+    #[error("Nonce overflow.")]
     NonceOverflow,
 }
 

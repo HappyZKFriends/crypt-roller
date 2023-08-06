@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests;
 
+use thiserror::Error;
+
 use crate::node::Node;
 use crate::transaction::Address;
 use crate::transaction::Amount;
@@ -8,9 +10,12 @@ use crate::transaction::Enter;
 use crate::transaction::Transaction;
 use crate::transaction::Transfer;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum WalletError {
+    #[error("Insufficient balance.")]
     InsufficientBalance,
+
+    #[error("Invalid address.")]
     InvalidAddress,
 }
 

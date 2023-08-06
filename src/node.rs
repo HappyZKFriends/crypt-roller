@@ -4,6 +4,8 @@ pub mod state;
 
 use std::path::Path;
 
+use thiserror::Error;
+
 use crate::utils::storage::StorageError;
 
 use history::History;
@@ -11,9 +13,12 @@ use mempool::Mempool;
 use state::RollupState;
 use state::TransactionExecutionError;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum NodeError {
+    #[error("Error while executing transaction | {0}")]
     Transaction(TransactionExecutionError),
+
+    #[error("Storage error | {0}")]
     Storage(StorageError),
 }
 
