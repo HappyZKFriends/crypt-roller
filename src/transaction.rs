@@ -4,6 +4,7 @@ pub type Nonce = u32;
 
 #[derive(PartialEq, Eq, Hash, Clone, Debug)]
 pub struct Enter {
+    // TODO: Address should be assigned automatically by the rollup.
     pub account: Address,
     pub amount: Amount,
 }
