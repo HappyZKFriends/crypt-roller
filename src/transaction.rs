@@ -1,15 +1,18 @@
+use serde::Deserialize;
+use serde::Serialize;
+
 pub type Address = u32;
 pub type Amount = u16;
 pub type Nonce = u32;
 
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct Enter {
     // TODO: Address should be assigned automatically by the rollup.
     pub account: Address,
     pub amount: Amount,
 }
 
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct Transfer {
     pub from: Address,
     pub to: Address,
@@ -17,7 +20,7 @@ pub struct Transfer {
     pub nonce: Nonce,
 }
 
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub enum Transaction {
     Enter(Enter),
     Transfer(Transfer),

@@ -2,10 +2,17 @@
 mod tests;
 
 use std::collections::HashSet;
+use std::path::Path;
+
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::transaction::Transaction;
+use crate::utils::storage::load_json;
+use crate::utils::storage::save_json;
+use crate::utils::storage::StorageError;
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Mempool {
     transactions: HashSet<Transaction>,
 }
@@ -27,6 +34,14 @@ impl Mempool {
 
     pub fn is_empty(&self) -> bool {
         self.transactions.is_empty()
+    }
+
+    pub fn load(storage_path: &Path) -> Result<Self, StorageError> {
+        load_json(storage_path, Self::new())
+    }
+
+    pub fn save(&self, storage_path: &Path) -> Result<(), StorageError> {
+        save_json(storage_path, self)
     }
 
     pub fn publish_transaction(&mut self, transaction: Transaction) {

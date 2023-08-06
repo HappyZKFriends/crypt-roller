@@ -2,6 +2,10 @@ pub mod history;
 pub mod mempool;
 pub mod state;
 
+use std::path::Path;
+
+use crate::utils::storage::StorageError;
+
 use history::History;
 use mempool::Mempool;
 use state::RollupState;
@@ -10,6 +14,7 @@ use state::TransactionExecutionError;
 #[derive(Debug)]
 pub enum NodeError {
     Transaction(TransactionExecutionError),
+    Storage(StorageError),
 }
 
 #[derive(Debug)]
@@ -28,8 +33,27 @@ impl Node {
         }
     }
 
-    pub fn start() -> Result<Self, NodeError> {
-        Ok(Node::new())
+    pub fn start(storage_dir: &Path) -> Result<Self, NodeError> {
+        let mut node = Self {
+            mempool: Mempool::load(&storage_dir.join("mempool.json"))
+                .map_err(NodeError::Storage)?,
+            history: History::load(&storage_dir.join("history.json"))
+                .map_err(NodeError::Storage)?,
+            state: RollupState::new(),
+        };
+
+        node.apply_history()?;
+        Ok(node)
+    }
+
+    pub fn update_storage(&self, storage_dir: &Path) -> Result<(), NodeError> {
+        self.history
+            .save(&storage_dir.join("history.json"))
+            .map_err(NodeError::Storage)?;
+        self.mempool
+            .save(&storage_dir.join("mempool.json"))
+            .map_err(NodeError::Storage)?;
+        Ok(())
     }
 
     fn apply_history(&mut self) -> Result<(), NodeError> {
