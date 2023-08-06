@@ -3,9 +3,14 @@ use clap::Subcommand;
 
 use crate::node::Node;
 use crate::node::NodeError;
+use crate::transaction::Address;
+use crate::transaction::Amount;
+use crate::wallet::Wallet;
+use crate::wallet::WalletError;
 
 #[derive(Debug)]
 pub enum CLIError {
+    Wallet(WalletError),
     Node(NodeError),
 }
 
@@ -33,13 +38,18 @@ enum SequencerCommands {
 #[derive(Subcommand)]
 enum WalletCommands {
     /// Create a new account in the rollup by communicating with the contract
-    Enter,
+    Enter { amount: Amount },
 
     /// Exit the rollup and destroy the account
     Exit,
 
+    // TODO: Persist the wallet so that 'from' does not have to be given explicitly
     /// Transfer funds to a different account in the rollup
-    Transfer { amount: u128, to: String },
+    Transfer {
+        from: Address,
+        to: Address,
+        amount: Amount,
+    },
 }
 
 #[derive(Subcommand)]
@@ -98,20 +108,28 @@ pub fn run_cli() -> Result<(), CLIError> {
         }
         Commands::Wallet { command } => {
             match command {
-                WalletCommands::Enter => {
-                    // TODO: Implement
-                    println!("ENTER");
+                WalletCommands::Enter { amount } => {
+                    let mut node = Node::start().map_err(CLIError::Node)?;
+                    let (_wallet, transaction) = Wallet::build_enter_transaction(*amount, &node)
+                        .map_err(CLIError::Wallet)?;
+                    node.mempool.publish_transaction(transaction);
                 }
                 WalletCommands::Exit => {
                     // TODO: Implement
                     println!("EXIT");
                 }
-                WalletCommands::Transfer { amount, to } => {
-                    // TODO: Implement
-                    println!("Transferring {amount} to {to}.");
+                WalletCommands::Transfer { from, to, amount } => {
+                    let mut node = Node::start().map_err(CLIError::Node)?;
+                    let wallet = Wallet { account: *from };
+
+                    let transaction = wallet
+                        .build_transfer_transaction(*to, *amount, &node)
+                        .map_err(CLIError::Wallet)?;
+                    node.mempool.publish_transaction(transaction);
                 }
             }
         }
-    };
+    }
+
     Ok(())
 }
