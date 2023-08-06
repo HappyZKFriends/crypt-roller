@@ -2,6 +2,8 @@ pub mod history;
 pub mod mempool;
 pub mod state;
 
+use crate::utils::storage::StorageError;
+
 use history::History;
 use mempool::Mempool;
 use state::RollupState;
@@ -10,6 +12,7 @@ use state::TransactionExecutionError;
 #[derive(Debug)]
 pub enum NodeError {
     Transaction(TransactionExecutionError),
+    Storage(StorageError),
 }
 
 #[derive(Debug)]
@@ -29,7 +32,20 @@ impl Node {
     }
 
     pub fn start() -> Result<Self, NodeError> {
-        Ok(Node::new())
+        let mut node = Self {
+            mempool: Mempool::load().map_err(NodeError::Storage)?,
+            history: History::load().map_err(NodeError::Storage)?,
+            state: RollupState::new(),
+        };
+
+        node.apply_history()?;
+        Ok(node)
+    }
+
+    pub fn update_storage(&self) -> Result<(), NodeError> {
+        self.history.save().map_err(NodeError::Storage)?;
+        self.mempool.save().map_err(NodeError::Storage)?;
+        Ok(())
     }
 
     fn apply_history(&mut self) -> Result<(), NodeError> {

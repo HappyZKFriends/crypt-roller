@@ -105,6 +105,7 @@ pub fn run_cli() -> Result<(), CLIError> {
                     } else {
                         node.history.publish_batch(batch);
                     }
+                    node.update_storage().map_err(CLIError::Node)?;
                 }
                 SequencerCommands::Pull => {
                     // TODO: Implement
@@ -119,6 +120,7 @@ pub fn run_cli() -> Result<(), CLIError> {
                     let (_wallet, transaction) = Wallet::build_enter_transaction(*amount, &node)
                         .map_err(CLIError::Wallet)?;
                     node.mempool.publish_transaction(transaction);
+                    node.update_storage().map_err(CLIError::Node)?;
                 }
                 WalletCommands::Exit => {
                     // TODO: Implement
@@ -132,6 +134,7 @@ pub fn run_cli() -> Result<(), CLIError> {
                         .build_transfer_transaction(*to, *amount, &node)
                         .map_err(CLIError::Wallet)?;
                     node.mempool.publish_transaction(transaction);
+                    node.update_storage().map_err(CLIError::Node)?;
                 }
             }
         }

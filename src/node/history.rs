@@ -1,9 +1,15 @@
 #[cfg(test)]
 mod tests;
 
-use crate::transaction::Transaction;
+use serde::Deserialize;
+use serde::Serialize;
 
-#[derive(PartialEq, Eq, Clone, Debug)]
+use crate::transaction::Transaction;
+use crate::utils::storage::load_json;
+use crate::utils::storage::save_json;
+use crate::utils::storage::StorageError;
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)]
 pub struct TransactionBatch {
     transactions: Vec<Transaction>,
 }
@@ -26,12 +32,14 @@ impl TransactionBatch {
     }
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct History {
     batches: Vec<TransactionBatch>,
 }
 
 impl History {
+    const STORAGE_PATH: &str = "history.json";
+
     pub fn new() -> Self {
         Self { batches: vec![] }
     }
@@ -46,6 +54,14 @@ impl History {
 
     pub fn batches(&self) -> &Vec<TransactionBatch> {
         &self.batches
+    }
+
+    pub fn load() -> Result<Self, StorageError> {
+        load_json(Self::STORAGE_PATH, Self::new())
+    }
+
+    pub fn save(&self) -> Result<(), StorageError> {
+        save_json(Self::STORAGE_PATH, self)
     }
 
     pub fn publish_batch(&mut self, batch: TransactionBatch) {
