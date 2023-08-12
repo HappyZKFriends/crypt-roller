@@ -1,0 +1,38 @@
+[
+  {
+    "Transfer": {
+      "from": 3,
+      "to": 2,
+      "amount": 10,
+      "nonce": 0
+    }
+  },
+  {
+    "Transfer": {
+      "from": 2,
+      "to": 1,
+      "amount": 1,
+      "nonce": 0
+    }
+  },
+  {
+    "Transfer": {
+      "from": 1,
+      "to": 2,
+      "amount": 3,
+      "nonce": 1
+    }
+  },
+  {
+    "Enter": {
+      "account": 4,
+      "amount": 100
+    }
+  },
+  {
+    "Enter": {
+      "account": 4,
+      "amount": 50
+    }
+  }
+]
