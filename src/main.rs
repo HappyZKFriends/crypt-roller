@@ -4,4 +4,12 @@ fn main() {
     if let Err(error) = run_cli() {
         println!("ERROR: {:#?}", error);
     }
+
+    Ok(())
+}
+
+fn main() {
+    if let Err(error) = run_cli() {
+        println!("ERROR: {:#?}", error);
+    }
 }

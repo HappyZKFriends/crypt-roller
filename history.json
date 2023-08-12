@@ -1,0 +1,73 @@
+[
+    {
+        "transactions": [
+            {
+                "Enter": {
+                    "account": 0,
+                    "amount": 0
+                }
+            },
+            {
+                "Enter": {
+                    "account": 1,
+                    "amount": 10
+                }
+            }
+        ]
+    },
+    {
+        "transactions": [
+            {
+                "Enter": {
+                    "account": 2,
+                    "amount": 20
+                }
+            },
+            {
+                "Transfer": {
+                    "from": 1,
+                    "to": 0,
+                    "amount": 5,
+                    "nonce": 0
+                }
+            }
+        ]
+    },
+    {
+        "transactions": []
+    },
+    {
+        "transactions": [
+            {
+                "Transfer": {
+                    "from": 0,
+                    "to": 1,
+                    "amount": 5,
+                    "nonce": 0
+                }
+            },
+            {
+                "Transfer": {
+                    "from": 2,
+                    "to": 1,
+                    "amount": 10,
+                    "nonce": 0
+                }
+            },
+            {
+                "Enter": {
+                    "account": 3,
+                    "amount": 30
+                }
+            },
+            {
+                "Transfer": {
+                    "from": 2,
+                    "to": 1,
+                    "amount": 5,
+                    "nonce": 1
+                }
+            }
+        ]
+    }
+]
