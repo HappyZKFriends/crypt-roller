@@ -4,6 +4,8 @@ pub mod state;
 
 use std::path::Path;
 
+use thiserror::Error;
+
 use crate::utils::storage::StorageError;
 
 use history::History;
@@ -11,10 +13,13 @@ use mempool::Mempool;
 use state::RollupState;
 use state::TransactionExecutionError;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum NodeError {
-    Transaction(TransactionExecutionError),
-    Storage(StorageError),
+    #[error("Error while executing transaction | {0}")]
+    Transaction(#[from] TransactionExecutionError),
+
+    #[error("Storage error | {0}")]
+    Storage(#[from] StorageError),
 }
 
 #[derive(Debug)]
@@ -35,10 +40,8 @@ impl Node {
 
     pub fn start(storage_dir: &Path) -> Result<Self, NodeError> {
         let mut node = Self {
-            mempool: Mempool::load(&storage_dir.join("mempool.json"))
-                .map_err(NodeError::Storage)?,
-            history: History::load(&storage_dir.join("history.json"))
-                .map_err(NodeError::Storage)?,
+            mempool: Mempool::load(&storage_dir.join("mempool.json"))?,
+            history: History::load(&storage_dir.join("history.json"))?,
             state: RollupState::new(),
         };
 
@@ -47,12 +50,8 @@ impl Node {
     }
 
     pub fn update_storage(&self, storage_dir: &Path) -> Result<(), NodeError> {
-        self.history
-            .save(&storage_dir.join("history.json"))
-            .map_err(NodeError::Storage)?;
-        self.mempool
-            .save(&storage_dir.join("mempool.json"))
-            .map_err(NodeError::Storage)?;
+        self.history.save(&storage_dir.join("history.json"))?;
+        self.mempool.save(&storage_dir.join("mempool.json"))?;
         Ok(())
     }
 
@@ -71,9 +70,7 @@ impl Node {
         );
         for batch in self.history.batches()[*self.state.batch_count()..self.history.len()].iter() {
             println!("    -> Applying {} transactions.", batch.len());
-            self.state
-                .apply_batch(batch.transactions())
-                .map_err(NodeError::Transaction)?;
+            self.state.apply_batch(batch.transactions())?;
             for transaction in batch.transactions().iter() {
                 self.mempool.drop_transaction(transaction);
             }

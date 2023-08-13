@@ -5,21 +5,23 @@ use std::path::PathBuf;
 
 use serde::Deserialize;
 use serde::Serialize;
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum StorageError {
-    FileReadError {
-        error: io::Error,
-        file: PathBuf,
-    },
-    FileWriteError {
-        error: io::Error,
-        file: PathBuf,
-    },
+    #[error("File read error for '{file}' | {error}")]
+    FileReadError { error: io::Error, file: PathBuf },
+
+    #[error("File write error for '{file}' | {error}")]
+    FileWriteError { error: io::Error, file: PathBuf },
+
+    #[error("Error while decoding '{file}' as JSON | {error}")]
     JSONDecodingError {
         error: serde_json::Error,
         file: PathBuf,
     },
+
+    #[error("Error while encoding JSON into '{file}' | {error}")]
     JSONEncodingError {
         error: serde_json::Error,
         file: PathBuf,
