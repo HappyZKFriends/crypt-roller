@@ -1,0 +1,40 @@
+use serde::Deserialize;
+use serde::Serialize;
+
+pub type Address = u32;
+pub type Amount = u16;
+pub type Nonce = u32;
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, Clone, Copy, Debug)]
+pub struct Enter {
+    // TODO: Address should be assigned automatically by the rollup.
+    pub account: Address,
+    pub amount: Amount,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, Clone, Copy, Debug)]
+pub struct Transfer {
+    pub from: Address,
+    pub to: Address,
+    pub amount: Amount,
+    pub nonce: Nonce,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, Clone, Copy, Debug)]
+pub enum Transaction {
+    Enter(Enter),
+    Transfer(Transfer),
+}
+
+pub fn make_transfer(from: Address, to: Address, amount: Amount, nonce: Nonce) -> Transaction {
+    Transaction::Transfer(Transfer {
+        from,
+        to,
+        amount,
+        nonce,
+    })
+}
+
+pub fn make_enter(account: Address, amount: Amount) -> Transaction {
+    Transaction::Enter(Enter { account, amount })
+}
